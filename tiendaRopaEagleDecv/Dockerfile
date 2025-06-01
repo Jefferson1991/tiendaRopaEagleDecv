@@ -1,3 +1,4 @@
+
 # Imagen base runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
@@ -8,20 +9,20 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copiar todo el código
+# Copiamos todo el código al contenedor
 COPY . .
 
-# Restaurar dependencias
+# Restauramos dependencias
 RUN dotnet restore tiendaRopaEagleDecv.csproj
 
-# Compilar
+# Compilamos el proyecto
 RUN dotnet build tiendaRopaEagleDecv.csproj -c Release -o /app/build
 
-# Publicar
+# Publicamos
 FROM build AS publish
 RUN dotnet publish tiendaRopaEagleDecv.csproj -c Release -o /app/publish /p:UseAppHost=false
 
-# Imagen final
+# Imagen final de producción
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
