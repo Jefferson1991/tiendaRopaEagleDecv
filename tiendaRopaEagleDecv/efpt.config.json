@@ -15,6 +15,26 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "Categorias",
+         "ObjectType": 0
+      },
+      {
+         "Name": "Inventario",
+         "ObjectType": 0
+      },
+      {
+         "Name": "ProductoColores",
+         "ObjectType": 0
+      },
+      {
+         "Name": "Productos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "ProductoTallas",
+         "ObjectType": 0
+      },
+      {
          "Name": "Roles",
          "ObjectType": 0
       },
