@@ -1,28 +1,31 @@
+﻿
 
-# Imagen base runtime
+# Consulte https://aka.ms/customizecontainer para aprender a personalizar su contenedor de depuración y cómo Visual Studio usa este Dockerfile para compilar sus imágenes para una depuración más rápida.
+
+# Esta fase se usa cuando se ejecuta desde VS en modo rápido (valor predeterminado para la configuración de depuración)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER $APP_UID
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+EXPOSE 8080
+EXPOSE 8081
 
-# Imagen de build
+
+# Esta fase se usa para compilar el proyecto de servicio
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-
-# Copiamos todo el código al contenedor
+COPY ["tiendaRopaEagleDecv/tiendaRopaEagleDecv.csproj", "tiendaRopaEagleDecv/"]
+RUN dotnet restore "./tiendaRopaEagleDecv/tiendaRopaEagleDecv.csproj"
 COPY . .
+WORKDIR "/src/tiendaRopaEagleDecv"
+RUN dotnet build "./tiendaRopaEagleDecv.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Restauramos dependencias
-RUN dotnet restore tiendaRopaEagleDecv.csproj
-
-# Compilamos el proyecto
-RUN dotnet build tiendaRopaEagleDecv.csproj -c Release -o /app/build
-
-# Publicamos
+# Esta fase se usa para publicar el proyecto de servicio que se copiará en la fase final.
 FROM build AS publish
-RUN dotnet publish tiendaRopaEagleDecv.csproj -c Release -o /app/publish /p:UseAppHost=false
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./tiendaRopaEagleDecv.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Imagen final de producción
+# Esta fase se usa en producción o cuando se ejecuta desde VS en modo normal (valor predeterminado cuando no se usa la configuración de depuración)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
